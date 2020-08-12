@@ -45,6 +45,7 @@ import Tree from './tree';
 import componentActionsRecord from './masterState';
 import { throttle, getHooksNames } from './helpers';
 
+
 declare global {
   interface Window {
     __REACT_DEVTOOLS_GLOBAL_HOOK__?: any;
@@ -55,7 +56,7 @@ let doWork = true;
 const circularComponentTable = new Set();
 
 // module.exports = (snap, mode) => {
-export default (snap: Snapshot, mode: Mode): ()=>void => {
+export default (snap: Snapshot, mode: Mode): () => void => {
   let fiberRoot = null;
 
   function sendSnapshot(): void {
@@ -67,6 +68,8 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     }
     const payload = snap.tree.cleanTreeCopy();// snap.tree.getCopy();
 
+    // console.log('snap tree', snap.tree);
+    // console.log('payload', payload);
     window.postMessage({
       action: 'recordSnap',
       payload,
@@ -110,6 +113,8 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
       selfBaseDuration,
       treeBaseDuration,
     } = currentFiber;
+    // console.log('current Fiber each time', currentFiber);
+    // console.log('current state Node of all current fiber', stateNode);
 
     let newState: any | {hooksState?: any[]} = {};
     let componentData: {
@@ -133,6 +138,7 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
 
     // Check if node is a hooks useState function
     let hooksIndex;
+    // console.log('here is memoized state and tag in createTree', memoizedState, tag);
     if (memoizedState && (tag === 0 || tag === 1 || tag === 2 || tag === 10)) {
       if (memoizedState.queue) {
         // Hooks states are stored as a linked list using memoizedState.next,
@@ -140,8 +146,13 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
         // We then store them along with the corresponding memoizedState.queue,
         // which includes the dispatch() function we use to change their state.
         const hooksStates = traverseHooks(memoizedState);
+        console.log('hookStates', hooksStates);
+        // debugger
         const hooksNames = getHooksNames(elementType.toString());
+        console.log('hooknames', hooksNames);
+        // console.log('get hook name', hooksNames);
         hooksStates.forEach((state, i) => {
+          console.log('component action Record', componentActionsRecord);
           hooksIndex = componentActionsRecord.saveNew(state.state, state.component);
           componentData.hooksIndex = hooksIndex;
           if (newState && newState.hooksState) {
@@ -158,7 +169,7 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     }
 
     // This grabs stateless components
-
+    // console.log('check if component Found is true', componentFound);
     if (!componentFound && (tag === 0 || tag === 1 || tag === 2)) {
       newState = 'stateless';
     }
@@ -172,8 +183,12 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
       treeBaseDuration,
     };
 
+    // console.log('componentData', componentData);
+
     let newNode = null;
     // We want to add this fiber node to the snapshot
+    // console.log(currentFiber);
+    // console.log('adding this fiber node to snapshot', componentFound, newState);
     if (componentFound || newState === 'stateless') {
       if (fromSibling) {
         newNode = tree.addSibling(newState,
@@ -187,8 +202,14 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     } else {
       newNode = tree;
     }
-
+    
+    // debugger
+    // console.log('child', child);
+    // console.log('sibling', sibling);
+    // console.log(circularComponentTable);
+    // console.log('------');
     // Recurse on children
+    // debugger;
     if (child && !circularComponentTable.has(child)) {
       // If this node had state we appended to the children array,
       // so attach children to the newly appended child.
@@ -202,14 +223,22 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
       createTree(sibling, newNode, true);
     }
 
+    // console.log('this is a tree', tree);
     return tree;
   }
 
+  
   function updateSnapShotTree(): void {
     if (fiberRoot) {
+      console.log('do have fiber root');
       const { current } = fiberRoot;
+      console.log(current);
+      console.log('before chearling circularComponentTable', circularComponentTable);
       circularComponentTable.clear();
+      console.log('check circularComponentTable', circularComponentTable);
+      console.log('creating a tre....')
       snap.tree = createTree(current);
+      console.log('after creating a tree, snap is', snap);
     }
     sendSnapshot();
   }
@@ -232,25 +261,39 @@ export default (snap: Snapshot, mode: Mode): ()=>void => {
     }
  */
     const devTools = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+    // console.log('here is devTools', devTools);
     const reactInstance = devTools ? devTools.renderers.get(1) : null;
     fiberRoot = devTools.getFiberRoots(1).values().next().value;
+    // let recoilRoot = fiberRoot.current.child;
+    // console.log('get recoil root', recoilRoot);
+    // console.log('get hook anme', getHooksNames(recoilRoot.elementType));
+    // console.log('here is recoil debug states', window[`$recoilDebugStates`]);
+    // console.log('get Batcher', recoilRoot.elementType(1));
+    const throttledUpdateSnapshot = throttle(updateSnapShotTree, 70); // why 70ms?
+    document.addEventListener('visibilitychange', onVisibilityChange); // what is this? if the user 
+    // how did u stop?
 
-    const throttledUpdateSnapshot = throttle(updateSnapShotTree, 70);
-    document.addEventListener('visibilitychange', onVisibilityChange);
-
+    if (window[`$recoilDebugStates`] === undefined){
+      console.log('this is not a recoil app');
+    } else {
+      console.log('this is a recoil app');
+    }
+    // console.log('reactInstance ha', reactInstance);
     if (reactInstance && reactInstance.version) {
       devTools.onCommitFiberRoot = (function (original) {
+        // console.log('I am fiberroot', fiberRoot);
         return function (...args) {
           // eslint-disable-next-line prefer-destructuring
           fiberRoot = args[1];
           if (doWork) {
+            // console.log('enter doWork');
             throttledUpdateSnapshot();
           }
           return original(...args);
         };
-      }(devTools.onCommitFiberRoot));
+      }(devTools.onCommitFiberRoot));      
     }
-
+    console.log('about to throttle and update snapshot')
     throttledUpdateSnapshot();
   };
 };
