@@ -55,6 +55,10 @@ declare global {
 let doWork = true;
 const circularComponentTable = new Set();
 
+function filterRecoilNode(root){
+  return root.child.sibling;
+}
+
 // module.exports = (snap, mode) => {
 export default (snap: Snapshot, mode: Mode): () => void => {
   let fiberRoot = null;
@@ -135,6 +139,7 @@ export default (snap: Snapshot, mode: Mode): () => void => {
       newState = stateNode.state;
       componentFound = true;
     }
+    // console.log('memomized state', memoizedState);
 
     // Check if node is a hooks useState function
     let hooksIndex;
@@ -145,14 +150,13 @@ export default (snap: Snapshot, mode: Mode): () => void => {
         // so we must traverse through the list and get the states.
         // We then store them along with the corresponding memoizedState.queue,
         // which includes the dispatch() function we use to change their state.
+        console.log('memomized state', memoizedState);
         const hooksStates = traverseHooks(memoizedState);
-        console.log('hookStates', hooksStates);
         // debugger
         const hooksNames = getHooksNames(elementType.toString());
-        console.log('hooknames', hooksNames);
+        // console.log('get hook States', hooksStates);
         // console.log('get hook name', hooksNames);
         hooksStates.forEach((state, i) => {
-          console.log('component action Record', componentActionsRecord);
           hooksIndex = componentActionsRecord.saveNew(state.state, state.component);
           componentData.hooksIndex = hooksIndex;
           if (newState && newState.hooksState) {
@@ -230,15 +234,15 @@ export default (snap: Snapshot, mode: Mode): () => void => {
   
   function updateSnapShotTree(): void {
     if (fiberRoot) {
-      console.log('do have fiber root');
+      // console.log('do have fiber root');
       const { current } = fiberRoot;
-      console.log(current);
-      console.log('before chearling circularComponentTable', circularComponentTable);
+      // console.log(current);
+      // console.log('before chearling circularComponentTable', circularComponentTable);
       circularComponentTable.clear();
-      console.log('check circularComponentTable', circularComponentTable);
-      console.log('creating a tre....')
+      // console.log('check circularComponentTable', circularComponentTable);
+      // console.log('creating a tre....')
       snap.tree = createTree(current);
-      console.log('after creating a tree, snap is', snap);
+      // console.log('after creating a tree, snap is', snap);
     }
     sendSnapshot();
   }
@@ -263,7 +267,18 @@ export default (snap: Snapshot, mode: Mode): () => void => {
     const devTools = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
     // console.log('here is devTools', devTools);
     const reactInstance = devTools ? devTools.renderers.get(1) : null;
+
     fiberRoot = devTools.getFiberRoots(1).values().next().value;
+
+    if (window[`$recoilDebugStates`] === undefined){
+      console.log('this is not a recoil app');
+    } else {
+      console.log('this is a recoil app');
+    }
+
+    // console.log(filterRecoilNode(fiberRoot));
+    console.log(fiberRoot);
+    // console.log(fiberRoot.current.child.child.child.sibling);
     // let recoilRoot = fiberRoot.current.child;
     // console.log('get recoil root', recoilRoot);
     // console.log('get hook anme', getHooksNames(recoilRoot.elementType));
@@ -273,11 +288,6 @@ export default (snap: Snapshot, mode: Mode): () => void => {
     document.addEventListener('visibilitychange', onVisibilityChange); // what is this? if the user 
     // how did u stop?
 
-    if (window[`$recoilDebugStates`] === undefined){
-      console.log('this is not a recoil app');
-    } else {
-      console.log('this is a recoil app');
-    }
     // console.log('reactInstance ha', reactInstance);
     if (reactInstance && reactInstance.version) {
       devTools.onCommitFiberRoot = (function (original) {

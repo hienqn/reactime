@@ -12,6 +12,7 @@ export default {
   saveNew: (state, component) => {
     componentActionsRecord[index] = { state, component };
     index++;
+    // console.log(componentActionsRecord);
     return index - 1;
   },
   getRecordByIndex: inputIndex => componentActionsRecord[inputIndex],

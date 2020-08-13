@@ -23,10 +23,10 @@ const circularComponentTable = new Set();
 // Carlos: origin is latest snapshot, linking to the fiber,
 // so changes to origin change app
 // module.exports = (origin, mode) => {
+  // origin here is the payload that passed in, mode = true
 export default (origin, mode) => {
   // Recursively change state of tree
   // Carlos: target is past state we are travelling to
-
   function jump(target, firstCall = false) {
     // Set the state of the origin tree if the component is stateful
 
@@ -36,6 +36,7 @@ export default (origin, mode) => {
       target.children.forEach(child => jump(child));
       return;
     }
+    
     const component = componentActionsRecord.getComponentByIndex(target.componentData.index);
     if (component && component.setState) {
       component.setState(prevState => {
@@ -69,10 +70,11 @@ export default (origin, mode) => {
 
     // }
   }
-
+  // target is a payload, and true
   return (target, firstCall = false) => {
     // * Setting mode disables setState from posting messages to window
     mode.jumping = true;
+    // right now firstcall is true
     if (firstCall) circularComponentTable.clear();
     jump(target);
     setTimeout(() => {

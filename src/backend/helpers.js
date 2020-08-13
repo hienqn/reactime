@@ -59,7 +59,7 @@ export const getHooksNames = elementType => {
   } catch (e) {
     return ['unknown'];
   }
-  console.log('real ast', ast)
+  // console.log('real ast', ast)
   const hookState = {};
   const hooksNames = {};
   while (Object.hasOwnProperty.call(ast, 'body')) {
@@ -100,19 +100,22 @@ export const getHooksNames = elementType => {
                   hooksNames[varName] = hook.id.name;
                 }
               }
-              statements.push(hook.id.name);
+
+              if (hook.id.name !== undefined) {
+                statements.push(hook.id.name);
+              }
             }
           });
         }
       });
 
       // Iterate array and determine getter/setters based on pattern
-      console.log('this is statement', statements);
+      // console.log('this is statement', statements);
       statements.forEach((el, i) => { 
         if (el.match(/_use/)) {
           hookState[el] = statements[i + 2];
-          console.log('this is what assigned to hook state', statements[i+2]);
-          console.log('this is hookState', hookState)
+          // console.log('this is what assigned to hook state', statements[i+2]);
+          // console.log('this is hookState', hookState)
         }
       });
       // statements[0] =  
@@ -121,4 +124,5 @@ export const getHooksNames = elementType => {
 
   // console.log('this is the return hook name', Object.values(hooksNames))
   return Object.values(hooksNames);
+  // return 'hien'
 };
