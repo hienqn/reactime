@@ -12,7 +12,6 @@ import 'core-js';
  * and recursively sets state for any stateful components.
  *
  */
-
 /* eslint-disable no-param-reassign */
 
 // const componentActionsRecord = require('./masterState');
@@ -56,6 +55,8 @@ export default (origin, mode) => {
         const hooksComponent = componentActionsRecord.getComponentByIndex(target.componentData.hooksIndex);
         const hookState = Object.values(hook);
         if (hooksComponent && hooksComponent.dispatch) {
+          console.log('hook component', hooksComponent);
+          console.log('hook state', hookState);
           hooksComponent.dispatch(hookState[0]);
         }
       });

@@ -45,7 +45,6 @@ import Tree from './tree';
 import componentActionsRecord from './masterState';
 import { throttle, getHooksNames } from './helpers';
 
-
 declare global {
   interface Window {
     __REACT_DEVTOOLS_GLOBAL_HOOK__?: any;
@@ -71,7 +70,7 @@ export default (snap: Snapshot, mode: Mode): () => void => {
       snap.tree = new Tree('root', 'root');
     }
     const payload = snap.tree.cleanTreeCopy();// snap.tree.getCopy();
-
+    console.log('payload to send', payload);
     // console.log('snap tree', snap.tree);
     // console.log('payload', payload);
     window.postMessage({
@@ -80,11 +79,20 @@ export default (snap: Snapshot, mode: Mode): () => void => {
     }, '*');
   }
 
+  function KevinRequest(memoizedState){
+    let pointer = memoizedState;
+    while (pointer.next !== null){
+      pointer = pointer.next;
+    }
+    return pointer;
+  }
   // Injects instrumentation to update our state tree every time
   // a hooks component changes state
   function traverseHooks(memoizedState: any): HookStates {
     const hooksStates: HookStates = [];
     while (memoizedState && memoizedState.queue) {
+      // console.log('does the wroking app dwadwad')
+      // console.log('here i am', memoizedState);
       if (memoizedState.memoizedState && memoizedState.queue.lastRenderedReducer && memoizedState.queue.lastRenderedReducer.name === 'basicStateReducer') {
         hooksStates.push({
           component: memoizedState.queue,
@@ -94,6 +102,9 @@ export default (snap: Snapshot, mode: Mode): () => void => {
       memoizedState = memoizedState.next !== memoizedState
         ? memoizedState.next : null;
     }
+    // console.log('here is hookstate', hooksStates);
+    // console.log('here is memoiizestadwa', memoizedState);
+    // console.log('Kevin request', KevinRequest(memoizedState).memoizedState[1]);
     return hooksStates;
   }
 
@@ -130,7 +141,8 @@ export default (snap: Snapshot, mode: Mode): () => void => {
       selfBaseDuration?: number,
       treeBaseDuration?: number} = {};
     let componentFound = false;
-
+    
+    // console.log('state node', stateNode, tag);
     // Check if node is a stateful setState component
     if (stateNode && stateNode.state && (tag === 0 || tag === 1 || tag === 2)) {
       // Save component's state and setState() function to our record for future
@@ -150,13 +162,14 @@ export default (snap: Snapshot, mode: Mode): () => void => {
         // so we must traverse through the list and get the states.
         // We then store them along with the corresponding memoizedState.queue,
         // which includes the dispatch() function we use to change their state.
-        console.log('memomized state', memoizedState);
+        // console.log('memomized state', memoizedState);
         const hooksStates = traverseHooks(memoizedState);
         // debugger
         const hooksNames = getHooksNames(elementType.toString());
-        // console.log('get hook States', hooksStates);
-        // console.log('get hook name', hooksNames);
+        console.log('get hook States', hooksStates);
+        console.log('get hook name', hooksNames);
         hooksStates.forEach((state, i) => {
+          // console.log('state and i', state, i);
           hooksIndex = componentActionsRecord.saveNew(state.state, state.component);
           componentData.hooksIndex = hooksIndex;
           if (newState && newState.hooksState) {
@@ -277,8 +290,10 @@ export default (snap: Snapshot, mode: Mode): () => void => {
     }
 
     // console.log(filterRecoilNode(fiberRoot));
-    console.log(fiberRoot);
-    // console.log(fiberRoot.current.child.child.child.sibling);
+    console.log('fiber root', fiberRoot);
+    // console.log('application start: Todolist()', fiberRoot.current.child.child.child.sibling);
+    // fiberRoot = fiberRoot.current.child.child.child.sibling;
+    // fiberRoot = fiberRoot.current.child.child.child.sibling;
     // let recoilRoot = fiberRoot.current.child;
     // console.log('get recoil root', recoilRoot);
     // console.log('get hook anme', getHooksNames(recoilRoot.elementType));
@@ -303,7 +318,7 @@ export default (snap: Snapshot, mode: Mode): () => void => {
         };
       }(devTools.onCommitFiberRoot));      
     }
-    console.log('about to throttle and update snapshot')
+    // console.log('about to throttle and update snapshot')
     throttledUpdateSnapshot();
   };
 };
