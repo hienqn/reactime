@@ -53,7 +53,7 @@ const StateRoute = (props: StateRouteProps) => {
   // if true involk render chart with hierarchy
   const renderChart = () => {
     if (hierarchy) {
-      return <Chart hierarchy={hierarchy} />;
+      return <Chart hierarchy={hierarchy} snapshot={snapshot} />;
     }
     return <div className="noState">{NO_STATE_MSG}</div>;
   };

@@ -9,7 +9,7 @@ import * as d3 from 'd3';
 
 const Map = (props) => {
   const { snapshot } = props;
-  console.log('MAP SNAPSHOT', snapshot);
+  // console.log('MAP SNAPSHOT', snapshot);
 
   // set the heights and width of the tree to be passed into treeMap function
   const width: number = 1100;
@@ -55,7 +55,7 @@ const Map = (props) => {
       children: snapshot.children,
     };
 
-    console.log('STATE', appState);
+    // console.log('STATE', appState);
     // creating the tree map
     const treeMap: any = d3.tree().nodeSize([width, height]);
 
@@ -63,17 +63,17 @@ const Map = (props) => {
     // pass
     const hierarchyNodes: any = d3.hierarchy(appState);
 
-    console.log('Hierarchy NODES', hierarchyNodes);
+    // console.log('Hierarchy NODES', hierarchyNodes);
 
     // calling the tree function with nodes created from data
     const finalMap: any = treeMap(hierarchyNodes);
 
-    console.log('FINAL MAP', finalMap);
+    // console.log('FINAL MAP', finalMap);
 
     // renders a flat array of objects containing all parent-child links
     // renders the paths onto the component
     let paths: any = finalMap.links();
-    console.log('PATHS', paths);
+    // console.log('PATHS', paths);
 
     // this creates the paths to each atom and its contents in the tree
     g.append('g')
@@ -95,7 +95,7 @@ const Map = (props) => {
     // returns a flat array of objects containing all the nodes and their information
     // renders nodes onto the canvas
     let nodes: any = hierarchyNodes.descendants();
-    console.log("NODES",nodes)
+    // console.log("NODES",nodes)
 
     // const node is used to create all the nodes
     // this segment places all the nodes on the canvas
