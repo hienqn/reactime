@@ -86,11 +86,9 @@ export default (snap: Snapshot, mode: Mode): (() => void) => {
     }
 
     const payload = snap.tree.cleanTreeCopy(); // snap.tree.getCopy();
-    // console.log('here is payload', payload);
-    // console.log('here is recoil state', window[`$recoilDebugStates`]);
+
     isRecoil ? getRecoilState() : ' ' ;
     
-    console.log('all atoms state', allAtomsRelationship)
     // payload.recoilState = window[`$recoilDebugStates`];
 
     isRecoil ? payload.AtomsRelationship = allAtomsRelationship : ' ';
@@ -154,24 +152,17 @@ export default (snap: Snapshot, mode: Mode): (() => void) => {
     } = currentFiber;
 
     if (elementType?.name && isRecoil) {
-      console.log('Name here', elementType?.name)
-      // console.log('Here is the state', memoizedState);
       let pointer = memoizedState;
       while (pointer !== null && pointer !== undefined && pointer.next !== null ){
         pointer = pointer.next;
       }
-      // console.log('traverse the memoizedState 1', pointer.memoizedState);
-      // // 2nd 
-      // console.log('traverse the memoizedState 2', pointer.memoizedState[1]?.[0]);
       if (pointer?.memoizedState[1]?.[0].current) {
         let atomName = pointer.memoizedState[1]?.[0].current.keys().next().value;
-        console.log('atom', pointer.memoizedState[1]?.[0].current.keys().next().value);
         allAtomsRelationship.push([atomName, elementType?.name, 'atoms and components'])
       }
 
       if (pointer?.memoizedState[1]?.[0].key) {
         let atomName = pointer.memoizedState[1]?.[0].key;
-        console.log('atom', pointer.memoizedState[1]?.[0].key);
         allAtomsRelationship.push([atomName, elementType?.name, 'atoms and components'])
       }
     }
@@ -207,12 +198,6 @@ export default (snap: Snapshot, mode: Mode): (() => void) => {
     }
 
     const atomArray = [];
-    // fiberRoot.current.child.child.memoizedProps.value.current
-    //   .getState()
-    //   .currentTree.atomValues.forEach((values, keys) => {
-    //     console.log('keys,', keys, 'values', values.contents);
-    //     atomArray.push(values.contents);
-    //   });
     atomArray.push(memoizedProps);
 
     function traverseRecoilHooks(memoizedState: any): HookStates {

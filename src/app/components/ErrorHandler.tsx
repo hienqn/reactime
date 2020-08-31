@@ -14,7 +14,6 @@ class ErrorHandler extends React.Component {
 
   componentDidCatch(error:string, info:string) {
     this.setState({ errorOccurred: true });
-    console.log('Error occurred in React Component: ', error, info);
   }
 
   render() {

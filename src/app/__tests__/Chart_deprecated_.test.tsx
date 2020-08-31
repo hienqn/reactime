@@ -52,7 +52,6 @@ describe('Life cycle methods in History', () => {
   };
   // Set up wrapper
   beforeEach(() => {
-    console.log(props)
     wrapper = mount(<History {...props} />);
   });
   // test componentDidMount

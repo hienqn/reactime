@@ -61,7 +61,6 @@ class Tree {
     this.componentData = componentData ? JSON.parse(JSON.stringify(componentData)) : {};
     this.children = [];
     this.parent = null; // ref to parent so we can add siblings
-    // this.recoilState = null;
   }
 
   addChild(state: string | {}, name: string, componentData: {}): Tree {

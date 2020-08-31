@@ -25,9 +25,6 @@ function AtomsRelationship(props) {
   })  
   const copyatomsRel = atomsRel.map(e => { let copy = [...e]; copy[2] = 1; return copy; });
 
-  // console.log('atoms and selectors', atomsAndSelectors);
-  // console.log('copy Atom rel', copyatomsRel);
-  // console.log('initial atom rel', atomsRel);
   const [atoms, setAtoms] = useState([...copyatomsRel]);
   const [atomAndSelectorCheck, setAtomAndSelectorCheck] = useState(false);
   const [atomAndCompCheck, setAtomAndCompCheck] = useState(false);
