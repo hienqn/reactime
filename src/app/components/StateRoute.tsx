@@ -14,7 +14,7 @@ import {
 import Tree from './Tree';
 import ComponentMap from './ComponentMap';
 import PerfView from './PerfView';
-import AtomsRelationship from './AtomsRelationship.jsx';
+import AtomsRelationship from './AtomsRelationship';
 
 const History = require('./History').default;
 
