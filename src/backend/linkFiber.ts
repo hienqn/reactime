@@ -27,6 +27,8 @@ import 'core-js';
  * @param currentFiber : a FiberNode object
  * --> Recursive function to traverse from FiberRootNode and create
  *     an instance of custom Tree class and build up state snapshot
+ * 
+ * @function 
  */
 
 /* eslint-disable no-underscore-dangle */
